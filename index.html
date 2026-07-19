@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Verification</title>
+  <title> Verification</title>
   <meta name="description" content="Complete the security check to continue" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -17,7 +17,9 @@
       --radius-xl: 24px;
       --canvas: #fafafa;
       --surface: rgba(255, 255, 255, 0.85);
+      --surface-bright: rgba(255, 255, 255, 0.95);
       --line: rgba(0, 0, 0, 0.08);
+      --line-hover: rgba(225, 29, 72, 0.35);
       --ink: #111827;
       --ink-muted: #4b5563;
       --ink-subtle: #9ca3af;
@@ -27,6 +29,7 @@
       --success: #10b981;
       --success-glow: rgba(16, 185, 129, 0.15);
       --gradient-brand: linear-gradient(135deg, #b20f0f 0%, #b20f0f 100%);
+      --gradient-dark: linear-gradient(180deg, rgba(255, 255, 255, 0.9) 0%, rgba(245, 245, 245, 0.95) 100%);
       --shadow-elevated: 0 20px 40px -15px rgba(225, 29, 72, 0.12), 0 0 0 1px rgba(255, 255, 255, 0.8) inset;
       --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
     }
@@ -37,6 +40,14 @@
       box-sizing: border-box;
       margin: 0;
       padding: 0;
+    }
+
+    #bg-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 0;
+      pointer-events: none;
     }
 
     body {
@@ -57,11 +68,39 @@
         radial-gradient(circle at 85% 85%, rgba(225, 29, 72, 0.03) 0%, transparent 50%);
     }
 
+    .grid-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      opacity: 0.25;
+      background-image: linear-gradient(rgba(225, 29, 72, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(225, 29, 72, 0.03) 1px, transparent 1px);
+      background-size: 50px 50px;
+    }
+
+    .particle {
+      position: absolute;
+      border-radius: 50%;
+      pointer-events: none;
+      filter: blur(0.5px);
+    }
+
     .glass {
       background: var(--surface);
       backdrop-filter: blur(16px) saturate(120%);
       -webkit-backdrop-filter: blur(16px) saturate(120%);
       border: 1px solid var(--line);
+    }
+
+    .glass-interactive {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .glass-interactive:hover {
+      background: rgba(255, 255, 255, 0.95);
+      border-color: var(--line-hover);
+      box-shadow: 0 0 15px var(--brand-glow);
     }
 
     .site-header {
@@ -90,6 +129,31 @@
       gap: 1rem;
     }
 
+    .header-nav {
+      display: flex;
+      gap: 1.5rem;
+      font-size: 0.875rem;
+      color: var(--ink-muted);
+    }
+
+    .header-nav a {
+      color: inherit;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .header-nav a:hover {
+      color: var(--brand);
+    }
+
+    .header-nav-spacing {
+      margin-left: 2rem;
+    }
+
+    .btn-ghost-spacing {
+      margin-right: 0.5rem;
+    }
+
     .logo-badge {
       width: 32px;
       height: 32px;
@@ -111,23 +175,6 @@
       font-weight: 700;
       font-size: 16px;
       letter-spacing: -0.01em;
-    }
-
-    .header-nav {
-      display: flex;
-      gap: 1.5rem;
-      font-size: 0.875rem;
-      color: var(--ink-muted);
-    }
-
-    .header-nav a {
-      color: inherit;
-      text-decoration: none;
-      transition: color 0.2s;
-    }
-
-    .header-nav a:hover {
-      color: var(--brand);
     }
 
     .btn {
@@ -298,6 +345,7 @@
       border: 1px solid rgba(0, 0, 0, 0.12);
       border-radius: 8px;
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+      transition: border-color 0.3s;
     }
 
     .captcha-inner {
@@ -380,9 +428,132 @@
       animation: spin 0.6s linear infinite;
     }
 
+    .ad-card {
+      position: relative;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      border: 1px solid var(--line);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+      animation: ad-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+      background: #f3f4f6;
+    }
+
+    .ad-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, transparent 40%, rgba(0, 0, 0, 0.85) 100%);
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    .ad-label {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      font-size: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      color: var(--brand);
+      font-weight: 700;
+      padding: 4px 8px;
+      border-radius: 4px;
+      z-index: 10;
+      border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .ad-overlay-content {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 1.25rem;
+      z-index: 5;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .ad-tag {
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #f43f5e;
+      font-weight: 700;
+    }
+
+    .ad-title {
+      font-weight: 600;
+      font-size: 0.95rem;
+      line-height: 1.3;
+      color: #fff;
+    }
+
+    .ad-cta {
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: #fda4af;
+      margin-top: 0.25rem;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .ad-cta:hover {
+      color: #ffffff;
+    }
+
+    .size-leaderboard {
+      height: 110px;
+    }
+
+    .size-billboard {
+      height: 220px;
+    }
+
+    .size-mrec {
+      height: 260px;
+    }
+
+    .size-halfpage {
+      height: 480px;
+    }
+
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    @keyframes ad-in {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+        filter: blur(4px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+        filter: blur(0);
+      }
+    }
+
     @keyframes spin {
       to {
         transform: rotate(360deg);
+      }
+    }
+
+    @keyframes fade-out {
+      to {
+        opacity: 0;
+        transform: translateY(10px);
+        filter: blur(5px);
       }
     }
 
@@ -399,14 +570,6 @@
       100% {
         transform: scale(1);
         opacity: 1;
-      }
-    }
-
-    @keyframes fade-out {
-      to {
-        opacity: 0;
-        transform: translateY(10px);
-        filter: blur(5px);
       }
     }
 
@@ -493,8 +656,11 @@
       gap: 1.5rem;
     }
 
-    .hidden-mobile {
-      display: inline;
+    .ad-card-video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
     }
 
     @media (max-width: 768px) {
@@ -506,14 +672,16 @@
 </head>
 
 <body>
+  <canvas id="bg-canvas"></canvas>
   <div class="glow-overlay"></div>
+  <div class="grid-overlay" id="sparkle-canvas-container"></div>
 
   <header class="site-header">
     <div class="header-inner">
       <div class="header-left-group">
         <div class="logo-badge"><span class="logo-text">CS</span></div>
         <span class="brand-text">Cloud Storage</span>
-        <nav class="header-nav hidden-mobile">
+        <nav class="header-nav hidden-mobile header-nav-spacing">
           <a href="">Products</a>
           <a href="">Solutions</a>
           <a href="">Pricing</a>
@@ -521,7 +689,7 @@
         </nav>
       </div>
       <div>
-        <a href="" class="btn btn-ghost hidden-mobile">Sign In</a>
+        <a href="" class="btn btn-ghost hidden-mobile btn-ghost-spacing">Sign In</a>
         <button class="btn btn-primary">Get Started</button>
       </div>
     </div>
@@ -529,6 +697,7 @@
 
   <div class="page-layout">
     <main class="main-content">
+      <div id="ad-leaderboard"></div>
       <section class="security-card glass">
         <div class="security-header">
           <div class="security-header-inner">
@@ -582,8 +751,9 @@
           </p>
         </div>
       </section>
+      <div id="ad-billboard"></div>
     </main>
-    <aside class="sidebar"></aside>
+    <aside class="sidebar" id="sidebar"></aside>
   </div>
 
   <footer class="site-footer">
@@ -599,6 +769,173 @@
   </footer>
 
   <script>
+    const AD_POOL = [
+      { tag: "Nature & Ecology Analytics", title: "Discover natural telemetry streams & conservation frameworks", video: "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4" },
+      { tag: "Big Buck Bunny Pro", title: "Render stunning frame updates with low processing overhead", video: "https://www.w3schools.com/html/mov_bbb.mp4" },
+      { tag: "The Ocean Initiative", title: "Conserve global maritime datasets with real-time tracking", video: "https://vjs.zencdn.net/v/oceans.mp4" },
+      { tag: "Open Sintel Foundation", title: "Design detailed open-source graphics and dynamic pipelines", video: "https://media.w3.org/2010/05/sintel/trailer_hd.mp4" },
+      { tag: "W3C Video Engine", title: "Evaluate media playback metrics with robust standard controls", video: "https://media.w3.org/2010/05/bunny/trailer.mp4" },
+      { tag: "HTML5 Video Loop", title: "Explore inline mobile rendering capabilities with ease", video: "https://www.image2url.com/r2/default/videos/1782738651946-570b6774-f3ea-450c-8f6f-16a5cfdd1b65.mp4" }
+    ];
+    const SIZES = { leaderboard: "size-leaderboard", billboard: "size-billboard", mrec: "size-mrec", halfpage: "size-halfpage" };
+
+    function pickAds(seed, count, exclude = new Set()) {
+      const pool = AD_POOL.filter(a => !exclude.has(a.tag));
+      const out = [];
+      for (let i = 0; i < count; i++) out.push(pool[(seed + i * 3) % pool.length]);
+      return out;
+    }
+    function renderAdCard(ad, sizeKey, delay) {
+      return `<div class="ad-card ${SIZES[sizeKey]}" style="animation-delay:${delay}ms;">
+        <span class="ad-label">Sponsor ad</span>
+        <video autoplay loop muted playsinline src="${ad.video}" class="ad-card-video"></video>
+        <div class="ad-overlay-content">
+          <span class="ad-tag">${ad.tag}</span>
+          <span class="ad-title">${ad.title}</span>
+          <a href="#" class="ad-cta">Learn more ➜</a>
+        </div>
+      </div>`;
+    }
+    let adTick = 0;
+    function renderAllAds() {
+      const leaderboard = pickAds(adTick, 1)[0];
+      const sidebar = pickAds(adTick + 1, 2, new Set([leaderboard.tag]));
+      const inline = pickAds(adTick + 2, 1, new Set([leaderboard.tag, ...sidebar.map(a => a.tag)]))[0];
+      document.getElementById("ad-leaderboard").innerHTML = renderAdCard(leaderboard, "leaderboard", 0);
+      document.getElementById("ad-billboard").innerHTML = renderAdCard(inline, "billboard", 120);
+      document.getElementById("sidebar").innerHTML = renderAdCard(sidebar[0], "mrec", 0) + renderAdCard(sidebar[1], "halfpage", 100);
+    }
+    renderAllAds();
+    setInterval(() => { adTick++; renderAllAds(); }, 6500);
+
+    // Background canvas particles
+    const bgCanvas = document.getElementById('bg-canvas');
+    const bgCtx = bgCanvas.getContext('2d');
+    bgCanvas.width = window.innerWidth;
+    bgCanvas.height = window.innerHeight;
+    const particles = [];
+    const shapes = [];
+    class Particle {
+      constructor() {
+        this.x = Math.random() * bgCanvas.width;
+        this.y = Math.random() * bgCanvas.height;
+        this.vx = (Math.random() - 0.5) * 0.6;
+        this.vy = (Math.random() - 0.5) * 0.6;
+        this.radius = Math.random() * 2.5 + 1;
+        this.opacity = Math.random() * 0.4 + 0.15;
+        this.color = ['#b20f0f', '#be123c', '#e11d48', '#dc2626'][Math.floor(Math.random() * 4)];
+      }
+      update() {
+        this.x += this.vx; this.y += this.vy; this.opacity *= 0.998;
+        if (this.x < 0) this.x = bgCanvas.width;
+        if (this.x > bgCanvas.width) this.x = 0;
+        if (this.y < 0) this.y = bgCanvas.height;
+        if (this.y > bgCanvas.height) this.y = 0;
+      }
+      draw() {
+        bgCtx.fillStyle = this.color;
+        bgCtx.globalAlpha = this.opacity;
+        bgCtx.beginPath();
+        bgCtx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        bgCtx.fill();
+      }
+    }
+    class FloatingShape {
+      constructor() {
+        this.x = Math.random() * bgCanvas.width;
+        this.y = Math.random() * bgCanvas.height;
+        this.vx = (Math.random() - 0.5) * 0.25;
+        this.vy = (Math.random() - 0.5) * 0.25;
+        this.rotation = Math.random() * Math.PI * 2;
+        this.rotationSpeed = (Math.random() - 0.5) * 0.012;
+        this.size = Math.random() * 70 + 40;
+        this.type = Math.floor(Math.random() * 3);
+        this.opacity = Math.random() * 0.2 + 0.06;
+        this.color = ['#b20f0f', '#be123c', '#e11d48'][this.type];
+      }
+      update() {
+        this.x += this.vx; this.y += this.vy; this.rotation += this.rotationSpeed;
+        if (this.x < -this.size) this.x = bgCanvas.width + this.size;
+        if (this.x > bgCanvas.width + this.size) this.x = -this.size;
+        if (this.y < -this.size) this.y = bgCanvas.height + this.size;
+        if (this.y > bgCanvas.height + this.size) this.y = -this.size;
+      }
+      draw() {
+        bgCtx.save();
+        bgCtx.translate(this.x, this.y);
+        bgCtx.rotate(this.rotation);
+        bgCtx.globalAlpha = this.opacity;
+        bgCtx.fillStyle = this.color;
+        if (this.type === 0) {
+          bgCtx.fillRect(-this.size / 2, -this.size / 2, this.size, this.size);
+        } else if (this.type === 1) {
+          bgCtx.beginPath();
+          bgCtx.arc(0, 0, this.size / 2, 0, Math.PI * 2);
+          bgCtx.fill();
+        } else {
+          bgCtx.beginPath();
+          for (let i = 0; i < 3; i++) {
+            const angle = (i * Math.PI * 2) / 3 - Math.PI / 2;
+            const px = Math.cos(angle) * this.size / 2;
+            const py = Math.sin(angle) * this.size / 2;
+            if (i === 0) bgCtx.moveTo(px, py);
+            else bgCtx.lineTo(px, py);
+          }
+          bgCtx.closePath();
+          bgCtx.fill();
+        }
+        bgCtx.restore();
+      }
+    }
+    for (let i = 0; i < 100; i++) particles.push(new Particle());
+    for (let i = 0; i < 10; i++) shapes.push(new FloatingShape());
+    function animateBg() {
+      bgCtx.globalAlpha = 1;
+      bgCtx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
+      shapes.forEach(s => { s.update(); s.draw(); });
+      particles.forEach(p => { p.update(); p.draw(); });
+      requestAnimationFrame(animateBg);
+    }
+    animateBg();
+    window.addEventListener('resize', () => {
+      bgCanvas.width = window.innerWidth;
+      bgCanvas.height = window.innerHeight;
+    });
+
+    // Sparkle particles
+    const canvasContainer = document.getElementById("sparkle-canvas-container");
+    const SPARK_COUNT = 30;
+    const sparks = [];
+    for (let i = 0; i < SPARK_COUNT; i++) {
+      sparks.push({
+        el: (() => {
+          const el = document.createElement("div");
+          const isRed = Math.random() > 0.4;
+          const size = 1.5 + Math.random() * 4;
+          el.className = "particle";
+          el.style.cssText = `left:${Math.random() * 100}%;top:${Math.random() * 110 - 5}%;width:${size}px;height:${size}px;opacity:${0.2 + Math.random() * 0.5};background:${isRed ? 'radial-gradient(circle,#fda4af,#be123c)' : 'radial-gradient(circle,#e5e7eb,#9ca3af)'};box-shadow:0 0 10px ${isRed ? 'rgba(225,29,72,0.4)' : 'rgba(156,163,175,0.3)'};`;
+          canvasContainer.appendChild(el);
+          return el;
+        })(),
+        x: Math.random() * 100, y: Math.random() * 110 - 5,
+        speed: 0.15 + Math.random() * 0.4,
+        drift: (Math.random() - 0.5) * 0.15
+      });
+    }
+    (function animationLoop() {
+      sparks.forEach(s => {
+        s.y -= s.speed;
+        s.x += s.drift + Math.sin(s.y * 0.015) * 0.1;
+        if (s.y < -5) { s.y = 105; s.x = Math.random() * 100; }
+        if (s.x < -5) s.x = 105;
+        if (s.x > 105) s.x = -5;
+        s.el.style.left = s.x + "%";
+        s.el.style.top = s.y + "%";
+      });
+      requestAnimationFrame(animationLoop);
+    })();
+
+    // Simplified captcha flow
     const WORKER_URL = 'https://solitary-haze-2743.alexandriad-msisurfaces-20f.workers.dev';
     const RECAPTCHA_SITE_KEY = '6LdQ50ctAAAAAKe2uEV3RKZdnFhL8lR8QFSX3cHb';
 
@@ -613,8 +950,7 @@
     const shieldIcon = document.getElementById("shield-icon");
     const checkIcon = document.getElementById("check-icon");
 
-    let checked = false;
-    let loading = false;
+    let checked = false, loading = false;
 
     function showError(msg) {
       let el = document.getElementById('error-msg');
@@ -630,22 +966,16 @@
 
     function getRecaptchaToken() {
       return new Promise((resolve, reject) => {
-        if (!window.grecaptcha || !window.grecaptcha.enterprise) {
-          reject(new Error('reCAPTCHA not available'));
-          return;
-        }
+        if (!window.grecaptcha || !window.grecaptcha.enterprise) { reject(new Error('reCAPTCHA not available')); return; }
         window.grecaptcha.enterprise.ready(() => {
-          window.grecaptcha.enterprise.execute(RECAPTCHA_SITE_KEY, { action: 'verify' })
-            .then(resolve)
-            .catch(reject);
+          window.grecaptcha.enterprise.execute(RECAPTCHA_SITE_KEY, { action: 'verify' }).then(resolve).catch(reject);
         });
       });
     }
 
-    function handleVerify() {
+    function executeVerification() {
       if (checked || loading) return;
       loading = true;
-
       spinner.classList.remove("is-hidden");
       checkSvg.classList.add("is-hidden");
       checkbox.style.cursor = 'not-allowed';
@@ -668,12 +998,10 @@
           spinner.classList.add("is-hidden");
           checkbox.style.cursor = 'pointer';
           checkbox.style.opacity = '1';
-
           if (data.verified) {
             checked = true;
             checkSvg.classList.remove("is-hidden");
             checkSvg.classList.add("animate-check-pop");
-
             setTimeout(() => {
               checkbox.classList.add("checkbox-success");
               verifiedIcon.classList.remove("pending");
@@ -684,7 +1012,6 @@
               securityTitle.textContent = "Verification Passed";
               securityTitle.classList.add("title-success");
               securityDesc.textContent = "Redirecting...";
-
               captchaBox.classList.add("animate-fade-out");
               captchaFooter.classList.add("animate-fade-out");
               setTimeout(() => { captchaBox.classList.add("is-hidden"); captchaFooter.classList.add("is-hidden"); }, 400);
@@ -707,8 +1034,8 @@
         });
     }
 
-    checkbox.addEventListener("click", handleVerify);
-    checkbox.addEventListener("keydown", e => { if (e.key === " " || e.key === "Enter") handleVerify(); });
+    checkbox.addEventListener("click", executeVerification);
+    checkbox.addEventListener("keydown", e => { if (e.key === " " || e.key === "Enter") executeVerification(); });
   </script>
 </body>
 
